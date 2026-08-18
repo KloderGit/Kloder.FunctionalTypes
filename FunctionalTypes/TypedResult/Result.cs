@@ -13,6 +13,7 @@ public abstract class Result<T>
     public abstract TR Match<TR>(Func<TR> success, Func<string, TR> failure);
 
     public abstract Result<TR> Bind<TR>(Func<T, Result<TR>> binder);
+    
     public abstract Result Bind(Func<Result> binder);
 
     public abstract Result<T> Tap(Action<T> action);
@@ -22,4 +23,6 @@ public abstract class Result<T>
     public abstract Result TapError(Action action);
     
     public abstract void Deconstruct(out bool isSuccess, out string? errorMessage, out T? result);
+    
+
 }

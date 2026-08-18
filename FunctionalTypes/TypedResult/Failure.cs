@@ -13,6 +13,7 @@ public sealed class Failure<T>(string message) : Result<T>
     public override TR Match<TR>(Func<TR> success, Func<string, TR> failure) => failure(message);
 
     public override Result<TR> Bind<TR>(Func<T, Result<TR>> binder) => new Failure<TR>(message);
+
     public override Result Bind(Func<Result> binder) => new Failure(message);
 
     public override Result<T> Tap(Action<T> action) => this;

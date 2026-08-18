@@ -17,6 +17,7 @@ public sealed class Success<T>(T value) : Result<T>
         => success();
 
     public override Result<TR> Bind<TR>(Func<T, Result<TR>> binder) => binder(value);
+
     public override Result Bind(Func<Result> binder) => binder();
 
     public override Result<T> Tap(Action<T> action)

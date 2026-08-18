@@ -5,6 +5,9 @@ public sealed class Success<T, TError>(T value) : Result<T, TError>
     public override Result<TR, TError> Map<TR>(Func<T, TR> selector)
         => new Success<TR, TError>(selector(value));
 
+    public override Result<TR, TError> Map<TR>(Func<TR> selector)
+        => new Success<TR, TError>(selector());
+
     public override Result<T, TError> Check(Predicate<T> predicate, Func<TError> errorFactory)
         => predicate(value) ? this : new Failure<T, TError>(errorFactory());
 
@@ -23,7 +26,16 @@ public sealed class Success<T, TError>(T value) : Result<T, TError>
         return this;
     }
 
+    public override Result<T, TError> Tap(Action action)
+    {
+        action();
+        return this;
+    }
+
     public override Result<T, TError> TapError(Action<TError> action)
+        => this;
+
+    public override Result<T, TError> TapError(Action action)
         => this;
 
     public override void Deconstruct(out bool isSuccess, out TError? errorValue, out T? result)

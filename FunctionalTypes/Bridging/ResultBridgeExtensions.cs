@@ -1,6 +1,4 @@
-using FunctionalTypes.SimpleResult;
 using FunctionalTypes.TypedErrorResult;
-using FunctionalTypes.TypedResult;
 
 namespace FunctionalTypes.Bridging;
 

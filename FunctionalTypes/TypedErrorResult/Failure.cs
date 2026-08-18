@@ -5,6 +5,9 @@ public sealed class Failure<T, TError>(TError error) : Result<T, TError>
     public override Result<TR, TError> Map<TR>(Func<T, TR> selector)
         => new Failure<TR, TError>(error);
 
+    public override Result<TR, TError> Map<TR>(Func<TR> selector)
+        => new Failure<TR, TError>(error);
+
     public override Result<T, TError> Check(Predicate<T> predicate, Func<TError> errorFactory)
         => this;
 
@@ -20,9 +23,18 @@ public sealed class Failure<T, TError>(TError error) : Result<T, TError>
     public override Result<T, TError> Tap(Action<T> action)
         => this;
 
+    public override Result<T, TError> Tap(Action action)
+        => this;
+
     public override Result<T, TError> TapError(Action<TError> action)
     {
         action(error);
+        return this;
+    }
+
+    public override Result<T, TError> TapError(Action action)
+    {
+        action();
         return this;
     }
 
