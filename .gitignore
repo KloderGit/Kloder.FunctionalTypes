@@ -1,0 +1,16 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+# JetBrains Rider
+.idea/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# OS
+.DS_Store
