@@ -8,9 +8,7 @@ public sealed class Success : Result
         => new Success<TR>(selector());
 
     public override TR Match<TR>(Func<TR> success, Func<string, TR> failure)
-    {
-        return success();
-    }
+        => success();
 
     public override Result Bind(Func<Result> binder)
         => binder();
@@ -19,22 +17,14 @@ public sealed class Success : Result
         => binder();
 
     public override Result Tap(Action action)
-    {
-        action();
-        return this;
-    }
+        { action(); return this; }
 
     public override Result TapError<TR>(Action action)
-    {
-        return this;
-    }
+        { return this; }
 
     public override Result Check(Func<bool> predicate, string? message = null)
         => predicate() ? this : new Failure(message ?? "Check failed");
 
     public override void Deconstruct(out bool isSuccess, out string? errorMessage)
-    {
-        isSuccess = true;
-        errorMessage = null;
-    }
+        { isSuccess = true; errorMessage = null; }
 }
