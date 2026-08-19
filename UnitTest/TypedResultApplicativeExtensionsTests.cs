@@ -147,3 +147,126 @@ public class TypedResultApplicativeExtensions_PureFuncEmbeddedInFlowTests
         Assert.That(sum.Match(v => "success", e => e), Is.EqualTo("bad-arg"));
     }
 }
+
+[TestFixture]
+public class TypedResultApplicativeExtensions_ApplyAsync_SyncFuncAsyncArgTests
+{
+    [Test]
+    public async Task ApplyAsync_FuncSuccess_ArgSuccess_ReturnsAppliedResult()
+    {
+        Result<Func<int, int>> func = new Success<Func<int, int>>(x => x * 2);
+
+        Result<int> applied = await func.ApplyAsync(() => Task.FromResult<Result<int>>(new Success<int>(21)));
+
+        Assert.That(applied.Match(v => v, _ => -1), Is.EqualTo(42));
+    }
+
+    [Test]
+    public async Task ApplyAsync_FuncFailure_ArgFactoryIsNeverInvoked()
+    {
+        Result<Func<int, int>> func = new Failure<Func<int, int>>("func-failed");
+        var argFactoryWasCalled = false;
+
+        Result<int> applied = await func.ApplyAsync(() =>
+        {
+            argFactoryWasCalled = true;
+            return Task.FromResult<Result<int>>(new Success<int>(21));
+        });
+
+        Assert.That(argFactoryWasCalled, Is.False);
+        Assert.That(applied.Match(v => "success", e => e), Is.EqualTo("func-failed"));
+    }
+
+    [Test]
+    public async Task ApplyAsync_FuncSuccess_ArgFactoryFails_PropagatesArgError()
+    {
+        Result<Func<int, int>> func = new Success<Func<int, int>>(x => x * 2);
+
+        Result<int> applied = await func.ApplyAsync(() => Task.FromResult<Result<int>>(new Failure<int>("arg-failed")));
+
+        Assert.That(applied.Match(v => "success", e => e), Is.EqualTo("arg-failed"));
+    }
+}
+
+[TestFixture]
+public class TypedResultApplicativeExtensions_Apply_AsyncFuncSyncArgTests
+{
+    [Test]
+    public async Task Apply_FuncTaskSuccess_ArgSuccess_ReturnsAppliedResult()
+    {
+        Task<Result<Func<int, int>>> funcTask = Task.FromResult<Result<Func<int, int>>>(new Success<Func<int, int>>(x => x * 2));
+
+        Result<int> applied = await funcTask.Apply(new Success<int>(21));
+
+        Assert.That(applied.Match(v => v, _ => -1), Is.EqualTo(42));
+    }
+
+    [Test]
+    public async Task Apply_FuncTaskFailure_ArgSuccess_ShortCircuitsWithFuncError()
+    {
+        Task<Result<Func<int, int>>> funcTask = Task.FromResult<Result<Func<int, int>>>(new Failure<Func<int, int>>("func-failed"));
+
+        Result<int> applied = await funcTask.Apply(new Success<int>(21));
+
+        Assert.That(applied.Match(v => "success", e => e), Is.EqualTo("func-failed"));
+    }
+}
+
+[TestFixture]
+public class TypedResultApplicativeExtensions_ApplyAsync_AsyncFuncAsyncArgTests
+{
+    [Test]
+    public async Task ApplyAsync_BothSuccess_AwaitsFuncBeforeInvokingArgFactory_Sequentially()
+    {
+        var order = new List<string>();
+
+        Task<Result<Func<int, int>>> funcTask = RecordAndReturn(order, "func", new Success<Func<int, int>>(x => x * 2));
+
+        Result<int> applied = await funcTask.ApplyAsync(() =>
+        {
+            order.Add("arg-factory-invoked");
+            return RecordAndReturn(order, "arg", new Success<int>(21));
+        });
+
+        Assert.That(applied.Match(v => v, _ => -1), Is.EqualTo(42));
+        Assert.That(order, Is.EqualTo(new[] { "func", "arg-factory-invoked", "arg" }));
+    }
+
+    [Test]
+    public async Task ApplyAsync_FuncTaskFailure_ArgFactoryIsNeverInvoked()
+    {
+        Task<Result<Func<int, int>>> funcTask = Task.FromResult<Result<Func<int, int>>>(new Failure<Func<int, int>>("func-failed"));
+        var argFactoryWasCalled = false;
+
+        Result<int> applied = await funcTask.ApplyAsync(() =>
+        {
+            argFactoryWasCalled = true;
+            return Task.FromResult<Result<int>>(new Success<int>(21));
+        });
+
+        Assert.That(argFactoryWasCalled, Is.False);
+        Assert.That(applied.Match(v => "success", e => e), Is.EqualTo("func-failed"));
+    }
+
+    [Test]
+    public async Task ApplyAsync_ChainsTwoAsyncArguments_MirrorsRealAsyncConstructionFlow()
+    {
+        // e.g. Organization.Create(cmd, bik, details) where bik/details each come from
+        // an independent, sequential, async lookup.
+        Task<Result<Func<int, Func<int, int>>>> curriedTask =
+            Task.FromResult(Func((int a) => (int b) => a + b));
+
+        Result<int> sum = await curriedTask
+            .ApplyAsync(() => Task.FromResult<Result<int>>(new Success<int>(1)))
+            .ApplyAsync(() => Task.FromResult<Result<int>>(new Success<int>(2)));
+
+        Assert.That(sum.Match(v => v, _ => -1), Is.EqualTo(3));
+    }
+
+    private static async Task<Result<T>> RecordAndReturn<T>(List<string> order, string label, Result<T> value)
+    {
+        await Task.Yield();
+        order.Add(label);
+        return value;
+    }
+}
