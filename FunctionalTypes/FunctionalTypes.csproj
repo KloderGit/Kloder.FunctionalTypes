@@ -5,6 +5,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Version>1.0.1</Version>
+        <RepositoryUrl>https://github.com/KloderGit/Kloder.FunctionalTypes</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/KloderGit/Kloder.FunctionalTypes</PackageProjectUrl>
     </PropertyGroup>
 
 </Project>
