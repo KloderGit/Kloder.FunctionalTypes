@@ -14,15 +14,22 @@ Restore packages (rarely needed, no external dependencies):
 dotnet restore KloderGit.FunctionalTypes.sln
 ```
 
-There is no test project in this repository yet — `dotnet test` has nothing to run.
+Run tests (NUnit, in `UnitTest/UnitTest.csproj`):
+```
+dotnet test KloderGit.FunctionalTypes.sln
+```
 
 ## Architecture
 
-This is a single .NET 9 class library (`FunctionalTypes/FunctionalTypes.csproj`, assembly name `FunctionalTypes`, root namespace `FunctionalTypes`) implementing a Railway-Oriented Programming `Result` type in three parallel variants, each in its own folder/namespace:
+This is a single .NET 9 class library (`FunctionalTypes/FunctionalTypes.csproj`, assembly name `FunctionalTypes`, root namespace `FunctionalTypes`) implementing Railway-Oriented Programming types, plus a matching `UnitTest` project (NUnit) whose file layout mirrors the source folders.
+
+### The Result trio
+
+A `Result` type in three parallel, fully-implemented variants, each in its own folder/namespace:
 
 - `FunctionalTypes.SimpleResult` — non-generic `Result` (success/failure with no payload, `string` error).
 - `FunctionalTypes.TypedResult` — generic `Result<T>` (success carries a `T` value, `string` error).
-- `FunctionalTypes.TypedErrorResult` — generic `Result<T, TError>` (success carries `T`, failure carries a typed `TError`). Currently only the abstract base class exists here; `Success`/`Failure` implementations have not been added yet.
+- `FunctionalTypes.TypedErrorResult` — generic `Result<T, TError>` (success carries `T`, failure carries a typed `TError`).
 
 Each variant follows the same shape: an `abstract class Result[...]` declaring the operations, plus sealed `Success`/`Failure` subclasses implementing them. Core operations across variants:
 
@@ -34,4 +41,20 @@ Each variant follows the same shape: an `abstract class Result[...]` declaring t
 
 The variants are cross-referenced: `SimpleResult.Result` methods can return `TypedResult.Result<TR>` (e.g. `Map`), and `TypedResult.Result<T>` methods can return the non-generic `SimpleResult.Result` (e.g. `Bind(Func<Result> binder)`), so changes to one variant's method signatures often need matching changes in the others to keep the trio consistent. When adding an operation to one `Result` type, check whether the same operation should exist on the other two for API symmetry.
 
-`TypedErrorResult.Result<T, TError>` mirrors this design but is not yet fully implemented — treat it as in-progress and consistent with the finished pattern in `SimpleResult`/`TypedResult` when completing it.
+### Extensions layered on top of each variant
+
+Each variant folder also has:
+
+- `ApplicativeExtensions.cs` — `Func`/`Apply`/`ApplyAsync` for applying a `Result`-wrapped function to a `Result`-wrapped argument (`SimpleResult` only has the `Func` lifting helpers, since it carries no value to apply against).
+- `BindAsyncExtensions.cs` — async `Bind`, in three shapes: `Result → Task<Result...>`, `Task<Result> → sync binder`, `Task<Result> → Task<Result...>`. Each shape also has cross-variant overloads (an `errorSelector` parameter) that bridge into whichever other variant(s) `Bridging/ResultBridgeExtensions.cs` supports for `Bind`.
+- `MapAsyncExtensions.cs` — same three shapes as `BindAsyncExtensions.cs`, for `Map` instead of `Bind`.
+
+When adding a sync operation to a `Result` type, also consider whether it needs an async counterpart in the matching `*AsyncExtensions.cs` file, in all three shapes, including the cross-variant bridging overload where `Bridging/ResultBridgeExtensions.cs` has a sync counterpart to mirror.
+
+### Bridging between variants
+
+`FunctionalTypes.Bridging.ResultBridgeExtensions` (`Bridging/ResultBridgeExtensions.cs`) holds synchronous `Map`/`Bind` extensions that cross from one variant into another (e.g. `SimpleResult.Result.Bind` into `Result<TR, TError>`). Coverage is not fully symmetric by design: `TypedErrorResult → SimpleResult` only has `Bind`, not `Map`, since `SimpleResult` carries no value for a `Map` selector to produce — that asymmetry is intentional and should be preserved (and mirrored the same way in the async extensions) rather than "completed".
+
+### Either
+
+`FunctionalTypes.Either` (`Either/Either.cs`, `Left.cs`, `Right.cs`) is a separate, independent `Either<TLeft, TRight>` type — not part of the `Result` trio's cross-referencing. It has `MapLeft`/`MapRight`, `BindLeft`/`BindRight`, `Match`, `TapLeft`/`TapRight`, `Swap`, `Deconstruct`. `Either/BindExtensions.cs` bridges it into `TypedResult.Result<T>` pipelines (`Bind` with separate left/right continuations, and `Collapse` when both sides carry the same type). Either currently has no async counterpart (no `BindAsync`/`MapAsync`) — unlike the `Result` trio, which has async extensions throughout.
