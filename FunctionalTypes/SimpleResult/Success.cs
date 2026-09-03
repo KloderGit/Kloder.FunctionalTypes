@@ -19,7 +19,7 @@ public sealed class Success : Result
     public override Result Tap(Action action)
         { action(); return this; }
 
-    public override Result TapError<TR>(Action action)
+    public override Result TapError(Action action)
         { return this; }
 
     public override Result Check(Func<bool> predicate, string? message = null)

@@ -19,7 +19,7 @@ public sealed class Failure(string error) : Result
     public override Result Tap(Action action)
         => this;
 
-    public override Result TapError<TR>(Action action)
+    public override Result TapError(Action action)
     {
         action();
         return this;

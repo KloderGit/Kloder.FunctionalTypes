@@ -48,8 +48,11 @@ Each variant folder also has:
 - `ApplicativeExtensions.cs` — `Func`/`Apply`/`ApplyAsync` for applying a `Result`-wrapped function to a `Result`-wrapped argument (`SimpleResult` only has the `Func` lifting helpers, since it carries no value to apply against).
 - `BindAsyncExtensions.cs` — async `Bind`, in three shapes: `Result → Task<Result...>`, `Task<Result> → sync binder`, `Task<Result> → Task<Result...>`. Each shape also has cross-variant overloads (an `errorSelector` parameter) that bridge into whichever other variant(s) `Bridging/ResultBridgeExtensions.cs` supports for `Bind`.
 - `MapAsyncExtensions.cs` — same three shapes as `BindAsyncExtensions.cs`, for `Map` instead of `Bind`.
+- `TapAsyncExtensions.cs` — same three shapes again, for `Tap`/`TapError`. These don't change the result's success/error type, so there's no `Bridging`-based cross-variant overload; the only extra flavor is `TypedResult`'s built-in `Tap(Action)`/`TapError(Action)` bridge down to `SimpleResult.Result` (mirrored in async), which `TypedErrorResult` does **not** have — its `Tap(Action)`/`TapError(Action)` stay `Result<T, TError>`. That asymmetry is pre-existing in the sync API; preserve it rather than "fixing" it.
 
 When adding a sync operation to a `Result` type, also consider whether it needs an async counterpart in the matching `*AsyncExtensions.cs` file, in all three shapes, including the cross-variant bridging overload where `Bridging/ResultBridgeExtensions.cs` has a sync counterpart to mirror.
+
+**Gotcha:** when a `Match` branch is written as an inline `async () => { ... }` lambda (rather than passing an already-typed `Func<...>` variable straight through, the way `BindAsync` passes `binder`), the compiler cannot infer `Match`'s own `TR` type argument from it (`CS0411`/`CS1593`). Give it explicitly, e.g. `result.Match<Task<Result<T>>>(success: async value => ..., failure: ...)`. This shows up whenever the success/failure branch has to *combine* two things (await a side effect or a plain value, then wrap/return a `Result`) instead of directly returning an already-`Result`-shaped delegate.
 
 ### Bridging between variants
 
