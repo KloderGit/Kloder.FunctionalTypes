@@ -4,8 +4,12 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <PackageId>Kloder.FunctionalTypes</PackageId>
         <Version>1.0.1</Version>
+        <Authors>KloderGit</Authors>
+        <Description>Railway-Oriented Programming library for .NET with Result, Either, and Maybe types</Description>
         <RepositoryUrl>https://github.com/KloderGit/Kloder.FunctionalTypes</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
         <PackageProjectUrl>https://github.com/KloderGit/Kloder.FunctionalTypes</PackageProjectUrl>
     </PropertyGroup>
 
