@@ -1,5 +1,3 @@
-bin/
-obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
@@ -11,6 +9,44 @@ riderModule.iml
 .vs/
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
 
-# OS
+# VS Code
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Logs
+*.log
+
+# NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
