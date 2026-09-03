@@ -19,7 +19,7 @@ Run tests (NUnit, in `UnitTest/UnitTest.csproj`):
 dotnet test KloderGit.FunctionalTypes.sln
 ```
 
-## Architecture
+## Architecture.
 
 This is a single .NET 9 class library (`FunctionalTypes/FunctionalTypes.csproj`, assembly name `FunctionalTypes`, root namespace `FunctionalTypes`) implementing Railway-Oriented Programming types, plus a matching `UnitTest` project (NUnit) whose file layout mirrors the source folders.
 
