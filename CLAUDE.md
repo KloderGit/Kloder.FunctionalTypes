@@ -62,4 +62,13 @@ When adding a sync operation to a `Result` type, also consider whether it needs 
 
 ### Either
 
-`FunctionalTypes.Either` (`Either/Either.cs`, `Left.cs`, `Right.cs`) is a separate, independent `Either<TLeft, TRight>` type — not part of the `Result` trio's cross-referencing. It has `MapLeft`/`MapRight`, `BindLeft`/`BindRight`, `Match`, `TapLeft`/`TapRight`, `Swap`, `Deconstruct`. `Either/BindExtensions.cs` bridges it into `TypedResult.Result<T>` pipelines (`Bind` with separate left/right continuations, and `Collapse` when both sides carry the same type). Either currently has no async counterpart (no `BindAsync`/`MapAsync`) — unlike the `Result` trio, which has async extensions throughout.
+`FunctionalTypes.Either` (`Either/Either.cs`, `Left.cs`, `Right.cs`) is a separate, independent `Either<TLeft, TRight>` type — not part of the `Result` trio's cross-referencing. It has `MapLeft`/`MapRight`, `BindLeft`/`BindRight`, `Match`, `TapLeft`/`TapRight`, `Swap`, `Deconstruct`. `Either/BindExtensions.cs` bridges it into `TypedResult.Result<T>` pipelines (`Bind` with separate left/right continuations, and `Collapse` when both sides carry the same type).
+
+Either has full async coverage now, mirroring the `Result` trio's `*AsyncExtensions.cs` pattern, one file per operation family in the `Either` folder:
+
+- `MapAsyncExtensions.cs` — `MapLeftAsync`/`MapRightAsync`, three shapes, own type only (no bridging target for `Map`).
+- `BindAsyncExtensions.cs` — `BindLeftAsync`/`BindRightAsync` (own type, three shapes) **plus** the async counterpart of `BindExtensions.cs`'s bridge into `Result<TR>` (`BindAsync`/`Bind`/`BindAsync` on `Result<Either<TLeft, TRight>>` / `Task<Result<Either<TLeft, TRight>>>`). The bridge's async implementation is a one-liner because it just forwards into `TypedResult.BindAsyncExtensions.BindAsync`, which already exists.
+- `TapAsyncExtensions.cs` — `TapLeftAsync`/`TapRightAsync`, three shapes.
+- `MatchAsyncExtensions.cs` — `MatchAsync`, three shapes; like `Result`'s `MatchAsync`, `onLeft`/`onRight` forward straight into the sync `Match` (no inline-lambda wrapper, no explicit `Match<TR>` type argument needed).
+
+No `CollapseAsync` was added: `Collapse` is literally `result.Map(either => either.Match(x => x, x => x))`, so it already gets async support for free from `TypedResult.MapAsyncExtensions`'s existing `Map`/`MapAsync` on `Task<Result<T>>` — adding a dedicated method would just duplicate that. `Swap` also has no async counterpart, for the same reason `Deconstruct` doesn't on `Result`: it takes no delegate to await, so there's nothing an async version would add over `(await task).Swap()`.
