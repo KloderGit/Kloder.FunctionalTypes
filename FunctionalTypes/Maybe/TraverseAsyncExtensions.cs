@@ -2,8 +2,8 @@ namespace FunctionalTypes.Maybe;
 
 public static class TraverseAsyncExtensions
 {
-    // Awaits selector for each item in order; short-circuits to None (without awaiting the
-    // rest) on the first None, otherwise collects all values into one Some.
+    // Awaits selector for each item in order; short-circuits to Nothing (without awaiting the
+    // rest) on the first Nothing, otherwise collects all values into one Just.
     public static async Task<Maybe<IEnumerable<TR>>> TraverseAsync<T, TR>(this IEnumerable<T> source,
         Func<T, Task<Maybe<TR>>> selector)
     {
@@ -12,10 +12,10 @@ public static class TraverseAsyncExtensions
         {
             var (hasValue, value) = await selector(item);
             if (!hasValue)
-                return Maybe<IEnumerable<TR>>.None();
+                return Maybe<IEnumerable<TR>>.Nothing();
             results.Add(value!);
         }
-        return Maybe<IEnumerable<TR>>.Some(results);
+        return Maybe<IEnumerable<TR>>.Just(results);
     }
 
     // Items are already-started tasks; awaited one by one, short-circuiting the same way.

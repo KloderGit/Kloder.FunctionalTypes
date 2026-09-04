@@ -2,7 +2,7 @@ namespace FunctionalTypes.Maybe;
 
 public static class ApplicativeExtensions
 {
-    public static Maybe<TFunc> Func<TFunc>(TFunc func) where TFunc : Delegate => new Some<TFunc>(func);
+    public static Maybe<TFunc> Func<TFunc>(TFunc func) where TFunc : Delegate => new Just<TFunc>(func);
 
     public static Maybe<TResult> Apply<T, TResult>(this Maybe<Func<T, TResult>> func, Maybe<T> argResult) =>
         func.Bind(f => argResult.Map(f));

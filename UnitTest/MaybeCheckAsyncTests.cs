@@ -6,9 +6,9 @@ namespace UnitTest;
 public class MaybeCheckAsync_SyncMaybeToTaskTests
 {
     [Test]
-    public async Task CheckAsync_OnSome_PredicateTrue_ReturnsUnchanged()
+    public async Task CheckAsync_OnJust_PredicateTrue_ReturnsUnchanged()
     {
-        Maybe<int> maybe = Maybe<int>.Some(42);
+        Maybe<int> maybe = Maybe<int>.Just(42);
 
         Maybe<int> checked_ = await maybe.CheckAsync(v => Task.FromResult(v > 0));
 
@@ -16,19 +16,19 @@ public class MaybeCheckAsync_SyncMaybeToTaskTests
     }
 
     [Test]
-    public async Task CheckAsync_OnSome_PredicateFalse_BecomesNone()
+    public async Task CheckAsync_OnJust_PredicateFalse_BecomesNothing()
     {
-        Maybe<int> maybe = Maybe<int>.Some(-1);
+        Maybe<int> maybe = Maybe<int>.Just(-1);
 
         Maybe<int> checked_ = await maybe.CheckAsync(v => Task.FromResult(v > 0));
 
-        Assert.That(checked_.IsNone, Is.True);
+        Assert.That(checked_.IsNothing, Is.True);
     }
 
     [Test]
-    public async Task CheckAsync_OnNone_SkipsPredicateAndStaysNone()
+    public async Task CheckAsync_OnNothing_SkipsPredicateAndStaysNothing()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
         var predicateWasCalled = false;
 
         Maybe<int> checked_ = await maybe.CheckAsync(v =>
@@ -38,7 +38,7 @@ public class MaybeCheckAsync_SyncMaybeToTaskTests
         });
 
         Assert.That(predicateWasCalled, Is.False);
-        Assert.That(checked_.IsNone, Is.True);
+        Assert.That(checked_.IsNothing, Is.True);
     }
 }
 
@@ -46,19 +46,19 @@ public class MaybeCheckAsync_SyncMaybeToTaskTests
 public class MaybeCheckAsync_TaskToSyncPredicateTests
 {
     [Test]
-    public async Task Check_OnSome_PredicateFalse_BecomesNone()
+    public async Task Check_OnJust_PredicateFalse_BecomesNothing()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Some(-1));
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Just(-1));
 
         Maybe<int> checked_ = await maybeTask.Check(v => v > 0);
 
-        Assert.That(checked_.IsNone, Is.True);
+        Assert.That(checked_.IsNothing, Is.True);
     }
 
     [Test]
-    public async Task Check_OnNone_SkipsPredicate()
+    public async Task Check_OnNothing_SkipsPredicate()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.None());
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Nothing());
         var predicateWasCalled = false;
 
         Maybe<int> checked_ = await maybeTask.Check(v =>
@@ -68,7 +68,7 @@ public class MaybeCheckAsync_TaskToSyncPredicateTests
         });
 
         Assert.That(predicateWasCalled, Is.False);
-        Assert.That(checked_.IsNone, Is.True);
+        Assert.That(checked_.IsNothing, Is.True);
     }
 }
 
@@ -76,19 +76,19 @@ public class MaybeCheckAsync_TaskToSyncPredicateTests
 public class MaybeCheckAsync_TaskToTaskTests
 {
     [Test]
-    public async Task CheckAsync_OnSome_PredicateFalse_BecomesNone()
+    public async Task CheckAsync_OnJust_PredicateFalse_BecomesNothing()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Some(-1));
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Just(-1));
 
         Maybe<int> checked_ = await maybeTask.CheckAsync(v => Task.FromResult(v > 0));
 
-        Assert.That(checked_.IsNone, Is.True);
+        Assert.That(checked_.IsNothing, Is.True);
     }
 
     [Test]
-    public async Task CheckAsync_OnNone_SkipsPredicate()
+    public async Task CheckAsync_OnNothing_SkipsPredicate()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.None());
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Nothing());
         var predicateWasCalled = false;
 
         Maybe<int> checked_ = await maybeTask.CheckAsync(v =>
@@ -98,6 +98,6 @@ public class MaybeCheckAsync_TaskToTaskTests
         });
 
         Assert.That(predicateWasCalled, Is.False);
-        Assert.That(checked_.IsNone, Is.True);
+        Assert.That(checked_.IsNothing, Is.True);
     }
 }

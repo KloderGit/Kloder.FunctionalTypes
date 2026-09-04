@@ -5,8 +5,8 @@ public static class BindAsyncExtensions
     // Bind → Task
     public static Task<Maybe<TR>> BindAsync<T, TR>(this Maybe<T> maybe, Func<T, Task<Maybe<TR>>> binder) =>
         maybe.Match(
-            some: binder,
-            none: () => Task.FromResult<Maybe<TR>>(new None<TR>())
+            just: binder,
+            nothing: () => Task.FromResult<Maybe<TR>>(new Nothing<TR>())
         );
 
 

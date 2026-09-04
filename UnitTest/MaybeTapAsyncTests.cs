@@ -6,9 +6,9 @@ namespace UnitTest;
 public class MaybeTapAsync_SyncMaybeToTaskTests
 {
     [Test]
-    public async Task TapAsync_OnSome_RunsActionAndReturnsUnchanged()
+    public async Task TapAsync_OnJust_RunsActionAndReturnsUnchanged()
     {
-        Maybe<int> maybe = Maybe<int>.Some(42);
+        Maybe<int> maybe = Maybe<int>.Just(42);
         var seen = -1;
 
         Maybe<int> tapped = await maybe.TapAsync(v =>
@@ -22,9 +22,9 @@ public class MaybeTapAsync_SyncMaybeToTaskTests
     }
 
     [Test]
-    public async Task TapAsync_OnNone_SkipsAction()
+    public async Task TapAsync_OnNothing_SkipsAction()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
         var tapWasCalled = false;
 
         Maybe<int> tapped = await maybe.TapAsync(_ =>
@@ -38,34 +38,34 @@ public class MaybeTapAsync_SyncMaybeToTaskTests
     }
 
     [Test]
-    public async Task TapNoneAsync_OnNone_RunsAction()
+    public async Task TapNothingAsync_OnNothing_RunsAction()
     {
-        Maybe<int> maybe = Maybe<int>.None();
-        var tapNoneWasCalled = false;
+        Maybe<int> maybe = Maybe<int>.Nothing();
+        var tapNothingWasCalled = false;
 
-        Maybe<int> tapped = await maybe.TapNoneAsync(() =>
+        Maybe<int> tapped = await maybe.TapNothingAsync(() =>
         {
-            tapNoneWasCalled = true;
+            tapNothingWasCalled = true;
             return Task.CompletedTask;
         });
 
-        Assert.That(tapNoneWasCalled, Is.True);
+        Assert.That(tapNothingWasCalled, Is.True);
         Assert.That(tapped, Is.SameAs(maybe));
     }
 
     [Test]
-    public async Task TapNoneAsync_OnSome_SkipsAction()
+    public async Task TapNothingAsync_OnJust_SkipsAction()
     {
-        Maybe<int> maybe = Maybe<int>.Some(42);
-        var tapNoneWasCalled = false;
+        Maybe<int> maybe = Maybe<int>.Just(42);
+        var tapNothingWasCalled = false;
 
-        Maybe<int> tapped = await maybe.TapNoneAsync(() =>
+        Maybe<int> tapped = await maybe.TapNothingAsync(() =>
         {
-            tapNoneWasCalled = true;
+            tapNothingWasCalled = true;
             return Task.CompletedTask;
         });
 
-        Assert.That(tapNoneWasCalled, Is.False);
+        Assert.That(tapNothingWasCalled, Is.False);
         Assert.That(tapped, Is.SameAs(maybe));
     }
 }
@@ -74,9 +74,9 @@ public class MaybeTapAsync_SyncMaybeToTaskTests
 public class MaybeTapAsync_TaskToSyncActionTests
 {
     [Test]
-    public async Task Tap_OnSome_RunsAction()
+    public async Task Tap_OnJust_RunsAction()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Some(42));
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Just(42));
         var seen = -1;
 
         Maybe<int> tapped = await maybeTask.Tap(v => seen = v);
@@ -86,15 +86,15 @@ public class MaybeTapAsync_TaskToSyncActionTests
     }
 
     [Test]
-    public async Task TapNone_OnNone_RunsAction()
+    public async Task TapNothing_OnNothing_RunsAction()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.None());
-        var tapNoneWasCalled = false;
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Nothing());
+        var tapNothingWasCalled = false;
 
-        Maybe<int> tapped = await maybeTask.TapNone(() => tapNoneWasCalled = true);
+        Maybe<int> tapped = await maybeTask.TapNothing(() => tapNothingWasCalled = true);
 
-        Assert.That(tapNoneWasCalled, Is.True);
-        Assert.That(tapped.IsNone, Is.True);
+        Assert.That(tapNothingWasCalled, Is.True);
+        Assert.That(tapped.IsNothing, Is.True);
     }
 }
 
@@ -102,9 +102,9 @@ public class MaybeTapAsync_TaskToSyncActionTests
 public class MaybeTapAsync_TaskToTaskTests
 {
     [Test]
-    public async Task TapAsync_OnSome_RunsAction()
+    public async Task TapAsync_OnJust_RunsAction()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Some(42));
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Just(42));
         var seen = -1;
 
         Maybe<int> tapped = await maybeTask.TapAsync(v =>
@@ -118,18 +118,18 @@ public class MaybeTapAsync_TaskToTaskTests
     }
 
     [Test]
-    public async Task TapNoneAsync_OnNone_RunsAction()
+    public async Task TapNothingAsync_OnNothing_RunsAction()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.None());
-        var tapNoneWasCalled = false;
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Nothing());
+        var tapNothingWasCalled = false;
 
-        Maybe<int> tapped = await maybeTask.TapNoneAsync(() =>
+        Maybe<int> tapped = await maybeTask.TapNothingAsync(() =>
         {
-            tapNoneWasCalled = true;
+            tapNothingWasCalled = true;
             return Task.CompletedTask;
         });
 
-        Assert.That(tapNoneWasCalled, Is.True);
-        Assert.That(tapped.IsNone, Is.True);
+        Assert.That(tapNothingWasCalled, Is.True);
+        Assert.That(tapped.IsNothing, Is.True);
     }
 }

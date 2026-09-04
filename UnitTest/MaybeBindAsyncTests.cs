@@ -6,29 +6,29 @@ namespace UnitTest;
 public class MaybeBindAsync_SyncMaybeToTaskTests
 {
     [Test]
-    public async Task BindAsync_OnSome_RunsBinder()
+    public async Task BindAsync_OnJust_RunsBinder()
     {
-        Maybe<int> maybe = Maybe<int>.Some(21);
+        Maybe<int> maybe = Maybe<int>.Just(21);
 
-        Maybe<string> bound = await maybe.BindAsync(v => Task.FromResult(Maybe<string>.Some((v * 2).ToString())));
+        Maybe<string> bound = await maybe.BindAsync(v => Task.FromResult(Maybe<string>.Just((v * 2).ToString())));
 
-        Assert.That(bound.Match(v => v, () => "none"), Is.EqualTo("42"));
+        Assert.That(bound.Match(v => v, () => "nothing"), Is.EqualTo("42"));
     }
 
     [Test]
-    public async Task BindAsync_OnNone_SkipsBinderAndStaysNone()
+    public async Task BindAsync_OnNothing_SkipsBinderAndStaysNothing()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
         var binderWasCalled = false;
 
         Maybe<string> bound = await maybe.BindAsync(v =>
         {
             binderWasCalled = true;
-            return Task.FromResult(Maybe<string>.Some(v.ToString()));
+            return Task.FromResult(Maybe<string>.Just(v.ToString()));
         });
 
         Assert.That(binderWasCalled, Is.False);
-        Assert.That(bound.IsNone, Is.True);
+        Assert.That(bound.IsNothing, Is.True);
     }
 }
 
@@ -36,23 +36,23 @@ public class MaybeBindAsync_SyncMaybeToTaskTests
 public class MaybeBindAsync_TaskToSyncBinderTests
 {
     [Test]
-    public async Task Bind_OnSome_RunsBinder()
+    public async Task Bind_OnJust_RunsBinder()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Some(21));
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Just(21));
 
-        Maybe<string> bound = await maybeTask.Bind(v => Maybe<string>.Some((v * 2).ToString()));
+        Maybe<string> bound = await maybeTask.Bind(v => Maybe<string>.Just((v * 2).ToString()));
 
-        Assert.That(bound.Match(v => v, () => "none"), Is.EqualTo("42"));
+        Assert.That(bound.Match(v => v, () => "nothing"), Is.EqualTo("42"));
     }
 
     [Test]
-    public async Task Bind_OnNone_StaysNone()
+    public async Task Bind_OnNothing_StaysNothing()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.None());
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Nothing());
 
-        Maybe<string> bound = await maybeTask.Bind(v => Maybe<string>.Some(v.ToString()));
+        Maybe<string> bound = await maybeTask.Bind(v => Maybe<string>.Just(v.ToString()));
 
-        Assert.That(bound.IsNone, Is.True);
+        Assert.That(bound.IsNothing, Is.True);
     }
 }
 
@@ -60,22 +60,22 @@ public class MaybeBindAsync_TaskToSyncBinderTests
 public class MaybeBindAsync_TaskToTaskTests
 {
     [Test]
-    public async Task BindAsync_OnSome_RunsBinder()
+    public async Task BindAsync_OnJust_RunsBinder()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Some(21));
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Just(21));
 
-        Maybe<string> bound = await maybeTask.BindAsync(v => Task.FromResult(Maybe<string>.Some((v * 2).ToString())));
+        Maybe<string> bound = await maybeTask.BindAsync(v => Task.FromResult(Maybe<string>.Just((v * 2).ToString())));
 
-        Assert.That(bound.Match(v => v, () => "none"), Is.EqualTo("42"));
+        Assert.That(bound.Match(v => v, () => "nothing"), Is.EqualTo("42"));
     }
 
     [Test]
-    public async Task BindAsync_OnNone_StaysNone()
+    public async Task BindAsync_OnNothing_StaysNothing()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.None());
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Nothing());
 
-        Maybe<string> bound = await maybeTask.BindAsync(v => Task.FromResult(Maybe<string>.Some(v.ToString())));
+        Maybe<string> bound = await maybeTask.BindAsync(v => Task.FromResult(Maybe<string>.Just(v.ToString())));
 
-        Assert.That(bound.IsNone, Is.True);
+        Assert.That(bound.IsNothing, Is.True);
     }
 }

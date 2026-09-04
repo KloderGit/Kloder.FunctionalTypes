@@ -5,8 +5,8 @@ public static class MapAsyncExtensions
     // Map → Task
     public static Task<Maybe<TR>> MapAsync<T, TR>(this Maybe<T> maybe, Func<T, Task<TR>> selector) =>
         maybe.Match<Task<Maybe<TR>>>(
-            some: async value => new Some<TR>(await selector(value)),
-            none: () => Task.FromResult<Maybe<TR>>(new None<TR>())
+            just: async value => new Just<TR>(await selector(value)),
+            nothing: () => Task.FromResult<Maybe<TR>>(new Nothing<TR>())
         );
 
 

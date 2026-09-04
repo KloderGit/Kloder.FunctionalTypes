@@ -6,27 +6,27 @@ namespace UnitTest;
 public class MaybeMatchAsync_SyncMaybeToTaskTests
 {
     [Test]
-    public async Task MatchAsync_OnSome_RunsSomeBranch()
+    public async Task MatchAsync_OnJust_RunsJustBranch()
     {
-        Maybe<int> maybe = Maybe<int>.Some(42);
+        Maybe<int> maybe = Maybe<int>.Just(42);
 
         string outcome = await maybe.MatchAsync(
-            some: v => Task.FromResult(v.ToString()),
-            none: () => Task.FromResult("none"));
+            just: v => Task.FromResult(v.ToString()),
+            nothing: () => Task.FromResult("nothing"));
 
         Assert.That(outcome, Is.EqualTo("42"));
     }
 
     [Test]
-    public async Task MatchAsync_OnNone_RunsNoneBranch()
+    public async Task MatchAsync_OnNothing_RunsNothingBranch()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
 
         string outcome = await maybe.MatchAsync(
-            some: v => Task.FromResult(v.ToString()),
-            none: () => Task.FromResult("none"));
+            just: v => Task.FromResult(v.ToString()),
+            nothing: () => Task.FromResult("nothing"));
 
-        Assert.That(outcome, Is.EqualTo("none"));
+        Assert.That(outcome, Is.EqualTo("nothing"));
     }
 }
 
@@ -34,23 +34,23 @@ public class MaybeMatchAsync_SyncMaybeToTaskTests
 public class MaybeMatchAsync_TaskToSyncBranchesTests
 {
     [Test]
-    public async Task Match_OnSome_RunsSomeBranch()
+    public async Task Match_OnJust_RunsJustBranch()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Some(42));
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Just(42));
 
-        string outcome = await maybeTask.Match(v => v.ToString(), () => "none");
+        string outcome = await maybeTask.Match(v => v.ToString(), () => "nothing");
 
         Assert.That(outcome, Is.EqualTo("42"));
     }
 
     [Test]
-    public async Task Match_OnNone_RunsNoneBranch()
+    public async Task Match_OnNothing_RunsNothingBranch()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.None());
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Nothing());
 
-        string outcome = await maybeTask.Match(v => v.ToString(), () => "none");
+        string outcome = await maybeTask.Match(v => v.ToString(), () => "nothing");
 
-        Assert.That(outcome, Is.EqualTo("none"));
+        Assert.That(outcome, Is.EqualTo("nothing"));
     }
 }
 
@@ -58,26 +58,26 @@ public class MaybeMatchAsync_TaskToSyncBranchesTests
 public class MaybeMatchAsync_TaskToTaskTests
 {
     [Test]
-    public async Task MatchAsync_OnSome_RunsSomeBranch()
+    public async Task MatchAsync_OnJust_RunsJustBranch()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Some(42));
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Just(42));
 
         string outcome = await maybeTask.MatchAsync(
-            some: v => Task.FromResult(v.ToString()),
-            none: () => Task.FromResult("none"));
+            just: v => Task.FromResult(v.ToString()),
+            nothing: () => Task.FromResult("nothing"));
 
         Assert.That(outcome, Is.EqualTo("42"));
     }
 
     [Test]
-    public async Task MatchAsync_OnNone_RunsNoneBranch()
+    public async Task MatchAsync_OnNothing_RunsNothingBranch()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.None());
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Nothing());
 
         string outcome = await maybeTask.MatchAsync(
-            some: v => Task.FromResult(v.ToString()),
-            none: () => Task.FromResult("none"));
+            just: v => Task.FromResult(v.ToString()),
+            nothing: () => Task.FromResult("nothing"));
 
-        Assert.That(outcome, Is.EqualTo("none"));
+        Assert.That(outcome, Is.EqualTo("nothing"));
     }
 }

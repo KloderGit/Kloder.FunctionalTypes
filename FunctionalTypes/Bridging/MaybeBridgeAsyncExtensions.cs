@@ -4,8 +4,8 @@ namespace FunctionalTypes.Bridging;
 
 public static class MaybeBridgeAsyncExtensions
 {
-    public static async Task<TypedResult.Result<T>> ToResult<T>(this Task<Maybe<T>> maybeTask, string noneMessage) =>
-        (await maybeTask).ToResult(noneMessage);
+    public static async Task<TypedResult.Result<T>> ToResult<T>(this Task<Maybe<T>> maybeTask, string nothingMessage) =>
+        (await maybeTask).ToResult(nothingMessage);
 
     public static async Task<TypedErrorResult.Result<T, TError>> ToResult<T, TError>(this Task<Maybe<T>> maybeTask,
         Func<TError> errorFactory) =>

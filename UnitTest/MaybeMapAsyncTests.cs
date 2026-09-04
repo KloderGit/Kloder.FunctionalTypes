@@ -6,19 +6,19 @@ namespace UnitTest;
 public class MaybeMapAsync_SyncMaybeToTaskTests
 {
     [Test]
-    public async Task MapAsync_OnSome_TransformsValue()
+    public async Task MapAsync_OnJust_TransformsValue()
     {
-        Maybe<int> maybe = Maybe<int>.Some(21);
+        Maybe<int> maybe = Maybe<int>.Just(21);
 
         Maybe<string> mapped = await maybe.MapAsync(v => Task.FromResult((v * 2).ToString()));
 
-        Assert.That(mapped.Match(v => v, () => "none"), Is.EqualTo("42"));
+        Assert.That(mapped.Match(v => v, () => "nothing"), Is.EqualTo("42"));
     }
 
     [Test]
-    public async Task MapAsync_OnNone_SkipsSelectorAndStaysNone()
+    public async Task MapAsync_OnNothing_SkipsSelectorAndStaysNothing()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
         var selectorWasCalled = false;
 
         Maybe<string> mapped = await maybe.MapAsync(v =>
@@ -28,7 +28,7 @@ public class MaybeMapAsync_SyncMaybeToTaskTests
         });
 
         Assert.That(selectorWasCalled, Is.False);
-        Assert.That(mapped.IsNone, Is.True);
+        Assert.That(mapped.IsNothing, Is.True);
     }
 }
 
@@ -36,23 +36,23 @@ public class MaybeMapAsync_SyncMaybeToTaskTests
 public class MaybeMapAsync_TaskToSyncSelectorTests
 {
     [Test]
-    public async Task Map_OnSome_TransformsValue()
+    public async Task Map_OnJust_TransformsValue()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Some(21));
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Just(21));
 
         Maybe<string> mapped = await maybeTask.Map(v => (v * 2).ToString());
 
-        Assert.That(mapped.Match(v => v, () => "none"), Is.EqualTo("42"));
+        Assert.That(mapped.Match(v => v, () => "nothing"), Is.EqualTo("42"));
     }
 
     [Test]
-    public async Task Map_OnNone_StaysNone()
+    public async Task Map_OnNothing_StaysNothing()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.None());
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Nothing());
 
         Maybe<string> mapped = await maybeTask.Map(v => v.ToString());
 
-        Assert.That(mapped.IsNone, Is.True);
+        Assert.That(mapped.IsNothing, Is.True);
     }
 }
 
@@ -60,22 +60,22 @@ public class MaybeMapAsync_TaskToSyncSelectorTests
 public class MaybeMapAsync_TaskToTaskTests
 {
     [Test]
-    public async Task MapAsync_OnSome_TransformsValue()
+    public async Task MapAsync_OnJust_TransformsValue()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Some(21));
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Just(21));
 
         Maybe<string> mapped = await maybeTask.MapAsync(v => Task.FromResult((v * 2).ToString()));
 
-        Assert.That(mapped.Match(v => v, () => "none"), Is.EqualTo("42"));
+        Assert.That(mapped.Match(v => v, () => "nothing"), Is.EqualTo("42"));
     }
 
     [Test]
-    public async Task MapAsync_OnNone_StaysNone()
+    public async Task MapAsync_OnNothing_StaysNothing()
     {
-        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.None());
+        Task<Maybe<int>> maybeTask = Task.FromResult(Maybe<int>.Nothing());
 
         Maybe<string> mapped = await maybeTask.MapAsync(v => Task.FromResult(v.ToString()));
 
-        Assert.That(mapped.IsNone, Is.True);
+        Assert.That(mapped.IsNothing, Is.True);
     }
 }

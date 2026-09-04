@@ -6,21 +6,21 @@ namespace UnitTest;
 public class MaybeFactoryTests
 {
     [Test]
-    public void Some_HasValue_IsSomeTrue_IsNoneFalse()
+    public void Just_HasValue_IsJustTrue_IsNothingFalse()
     {
-        Maybe<int> maybe = Maybe<int>.Some(42);
+        Maybe<int> maybe = Maybe<int>.Just(42);
 
-        Assert.That(maybe.IsSome, Is.True);
-        Assert.That(maybe.IsNone, Is.False);
+        Assert.That(maybe.IsJust, Is.True);
+        Assert.That(maybe.IsNothing, Is.False);
     }
 
     [Test]
-    public void None_IsSomeFalse_IsNoneTrue()
+    public void Nothing_IsJustFalse_IsNothingTrue()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
 
-        Assert.That(maybe.IsSome, Is.False);
-        Assert.That(maybe.IsNone, Is.True);
+        Assert.That(maybe.IsJust, Is.False);
+        Assert.That(maybe.IsNothing, Is.True);
     }
 }
 
@@ -28,9 +28,9 @@ public class MaybeFactoryTests
 public class MaybeMapTests
 {
     [Test]
-    public void Map_OnSome_TransformsValue()
+    public void Map_OnJust_TransformsValue()
     {
-        Maybe<int> maybe = Maybe<int>.Some(21);
+        Maybe<int> maybe = Maybe<int>.Just(21);
 
         Maybe<int> mapped = maybe.Map(v => v * 2);
 
@@ -38,9 +38,9 @@ public class MaybeMapTests
     }
 
     [Test]
-    public void Map_OnNone_SkipsSelectorAndStaysNone()
+    public void Map_OnNothing_SkipsSelectorAndStaysNothing()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
         var selectorWasCalled = false;
 
         Maybe<int> mapped = maybe.Map(v =>
@@ -50,7 +50,7 @@ public class MaybeMapTests
         });
 
         Assert.That(selectorWasCalled, Is.False);
-        Assert.That(mapped.IsNone, Is.True);
+        Assert.That(mapped.IsNothing, Is.True);
     }
 }
 
@@ -58,29 +58,29 @@ public class MaybeMapTests
 public class MaybeBindTests
 {
     [Test]
-    public void Bind_OnSome_RunsBinder()
+    public void Bind_OnJust_RunsBinder()
     {
-        Maybe<int> maybe = Maybe<int>.Some(21);
+        Maybe<int> maybe = Maybe<int>.Just(21);
 
-        Maybe<string> bound = maybe.Bind(v => Maybe<string>.Some((v * 2).ToString()));
+        Maybe<string> bound = maybe.Bind(v => Maybe<string>.Just((v * 2).ToString()));
 
-        Assert.That(bound.Match(v => v, () => "none"), Is.EqualTo("42"));
+        Assert.That(bound.Match(v => v, () => "nothing"), Is.EqualTo("42"));
     }
 
     [Test]
-    public void Bind_OnNone_SkipsBinderAndStaysNone()
+    public void Bind_OnNothing_SkipsBinderAndStaysNothing()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
         var binderWasCalled = false;
 
         Maybe<string> bound = maybe.Bind(v =>
         {
             binderWasCalled = true;
-            return Maybe<string>.Some(v.ToString());
+            return Maybe<string>.Just(v.ToString());
         });
 
         Assert.That(binderWasCalled, Is.False);
-        Assert.That(bound.IsNone, Is.True);
+        Assert.That(bound.IsNothing, Is.True);
     }
 }
 
@@ -88,23 +88,23 @@ public class MaybeBindTests
 public class MaybeMatchTests
 {
     [Test]
-    public void Match_OnSome_RunsSomeBranch()
+    public void Match_OnJust_RunsJustBranch()
     {
-        Maybe<int> maybe = Maybe<int>.Some(42);
+        Maybe<int> maybe = Maybe<int>.Just(42);
 
-        string outcome = maybe.Match(v => v.ToString(), () => "none");
+        string outcome = maybe.Match(v => v.ToString(), () => "nothing");
 
         Assert.That(outcome, Is.EqualTo("42"));
     }
 
     [Test]
-    public void Match_OnNone_RunsNoneBranch()
+    public void Match_OnNothing_RunsNothingBranch()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
 
-        string outcome = maybe.Match(v => v.ToString(), () => "none");
+        string outcome = maybe.Match(v => v.ToString(), () => "nothing");
 
-        Assert.That(outcome, Is.EqualTo("none"));
+        Assert.That(outcome, Is.EqualTo("nothing"));
     }
 }
 
@@ -112,9 +112,9 @@ public class MaybeMatchTests
 public class MaybeTapTests
 {
     [Test]
-    public void Tap_OnSome_RunsActionAndReturnsUnchanged()
+    public void Tap_OnJust_RunsActionAndReturnsUnchanged()
     {
-        Maybe<int> maybe = Maybe<int>.Some(42);
+        Maybe<int> maybe = Maybe<int>.Just(42);
         var seen = -1;
 
         Maybe<int> tapped = maybe.Tap(v => seen = v);
@@ -124,9 +124,9 @@ public class MaybeTapTests
     }
 
     [Test]
-    public void Tap_OnNone_SkipsAction()
+    public void Tap_OnNothing_SkipsAction()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
         var tapWasCalled = false;
 
         Maybe<int> tapped = maybe.Tap(_ => tapWasCalled = true);
@@ -136,26 +136,26 @@ public class MaybeTapTests
     }
 
     [Test]
-    public void TapNone_OnNone_RunsAction()
+    public void TapNothing_OnNothing_RunsAction()
     {
-        Maybe<int> maybe = Maybe<int>.None();
-        var tapNoneWasCalled = false;
+        Maybe<int> maybe = Maybe<int>.Nothing();
+        var tapNothingWasCalled = false;
 
-        Maybe<int> tapped = maybe.TapNone(() => tapNoneWasCalled = true);
+        Maybe<int> tapped = maybe.TapNothing(() => tapNothingWasCalled = true);
 
-        Assert.That(tapNoneWasCalled, Is.True);
+        Assert.That(tapNothingWasCalled, Is.True);
         Assert.That(tapped, Is.SameAs(maybe));
     }
 
     [Test]
-    public void TapNone_OnSome_SkipsAction()
+    public void TapNothing_OnJust_SkipsAction()
     {
-        Maybe<int> maybe = Maybe<int>.Some(42);
-        var tapNoneWasCalled = false;
+        Maybe<int> maybe = Maybe<int>.Just(42);
+        var tapNothingWasCalled = false;
 
-        Maybe<int> tapped = maybe.TapNone(() => tapNoneWasCalled = true);
+        Maybe<int> tapped = maybe.TapNothing(() => tapNothingWasCalled = true);
 
-        Assert.That(tapNoneWasCalled, Is.False);
+        Assert.That(tapNothingWasCalled, Is.False);
         Assert.That(tapped, Is.SameAs(maybe));
     }
 }
@@ -164,9 +164,9 @@ public class MaybeTapTests
 public class MaybeCheckTests
 {
     [Test]
-    public void Check_OnSome_PredicateTrue_ReturnsUnchanged()
+    public void Check_OnJust_PredicateTrue_ReturnsUnchanged()
     {
-        Maybe<int> maybe = Maybe<int>.Some(42);
+        Maybe<int> maybe = Maybe<int>.Just(42);
 
         Maybe<int> checked_ = maybe.Check(v => v > 0);
 
@@ -174,19 +174,19 @@ public class MaybeCheckTests
     }
 
     [Test]
-    public void Check_OnSome_PredicateFalse_BecomesNone()
+    public void Check_OnJust_PredicateFalse_BecomesNothing()
     {
-        Maybe<int> maybe = Maybe<int>.Some(-1);
+        Maybe<int> maybe = Maybe<int>.Just(-1);
 
         Maybe<int> checked_ = maybe.Check(v => v > 0);
 
-        Assert.That(checked_.IsNone, Is.True);
+        Assert.That(checked_.IsNothing, Is.True);
     }
 
     [Test]
-    public void Check_OnNone_SkipsPredicateAndStaysNone()
+    public void Check_OnNothing_SkipsPredicateAndStaysNothing()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
         var predicateWasCalled = false;
 
         Maybe<int> checked_ = maybe.Check(v =>
@@ -196,7 +196,7 @@ public class MaybeCheckTests
         });
 
         Assert.That(predicateWasCalled, Is.False);
-        Assert.That(checked_.IsNone, Is.True);
+        Assert.That(checked_.IsNothing, Is.True);
     }
 }
 
@@ -204,17 +204,17 @@ public class MaybeCheckTests
 public class MaybeGetValueOrDefaultTests
 {
     [Test]
-    public void GetValueOrDefault_OnSome_ReturnsValue()
+    public void GetValueOrDefault_OnJust_ReturnsValue()
     {
-        Maybe<int> maybe = Maybe<int>.Some(42);
+        Maybe<int> maybe = Maybe<int>.Just(42);
 
         Assert.That(maybe.GetValueOrDefault(-1), Is.EqualTo(42));
     }
 
     [Test]
-    public void GetValueOrDefault_OnNone_ReturnsDefault()
+    public void GetValueOrDefault_OnNothing_ReturnsDefault()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
 
         Assert.That(maybe.GetValueOrDefault(-1), Is.EqualTo(-1));
     }
@@ -224,9 +224,9 @@ public class MaybeGetValueOrDefaultTests
 public class MaybeDeconstructTests
 {
     [Test]
-    public void Deconstruct_OnSome_YieldsHasValueTrueAndValue()
+    public void Deconstruct_OnJust_YieldsHasValueTrueAndValue()
     {
-        Maybe<int> maybe = Maybe<int>.Some(42);
+        Maybe<int> maybe = Maybe<int>.Just(42);
 
         var (hasValue, value) = maybe;
 
@@ -235,9 +235,9 @@ public class MaybeDeconstructTests
     }
 
     [Test]
-    public void Deconstruct_OnNone_YieldsHasValueFalseAndDefault()
+    public void Deconstruct_OnNothing_YieldsHasValueFalseAndDefault()
     {
-        Maybe<int> maybe = Maybe<int>.None();
+        Maybe<int> maybe = Maybe<int>.Nothing();
 
         var (hasValue, value) = maybe;
 
