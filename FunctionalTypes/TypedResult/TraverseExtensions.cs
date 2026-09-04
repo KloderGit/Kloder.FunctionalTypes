@@ -18,6 +18,17 @@ public static class TraverseExtensions
         }
         return new Success<IEnumerable<TR>>(results);
     }
+    
+    public static Result Traverse<T>(this IEnumerable<T> source, Func<T, Result> selector)
+    {
+        foreach (var item in source)
+        {
+            var (isSuccess, error) = selector(item);
+            if (!isSuccess)
+                return new Failure(error!);
+        }
+        return new Success();
+    }
 
     public static Result<IEnumerable<T>> Sequence<T>(this IEnumerable<Result<T>> source) =>
         source.Traverse(x => x);
