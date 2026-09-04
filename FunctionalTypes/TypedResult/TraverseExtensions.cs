@@ -1,3 +1,5 @@
+using FunctionalTypes.SimpleResult;
+
 namespace FunctionalTypes.TypedResult;
 
 public static class TraverseExtensions

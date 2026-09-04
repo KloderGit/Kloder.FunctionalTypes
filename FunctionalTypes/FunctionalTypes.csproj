@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>Kloder.FunctionalTypes</PackageId>
-        <Version>1.0.2</Version>
+        <Version>1.0.3</Version>
         <Authors>KloderGit</Authors>
         <Description>Railway-Oriented Programming library for .NET with Result, Either, and Maybe types</Description>
         <RepositoryUrl>https://github.com/KloderGit/Kloder.FunctionalTypes</RepositoryUrl>
